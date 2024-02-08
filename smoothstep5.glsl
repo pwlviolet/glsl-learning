@@ -54,7 +54,7 @@ float func(in float x)
 {  
     //  float T=4.0+2.0*sin(iTime);
     float T=4.0;
-    return sin(2.0*PI/T*x);
+    return cos(2.0*PI/T*x);
 }
 
 float drawfunc(in vec2 uv)

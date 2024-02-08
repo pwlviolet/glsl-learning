@@ -5,13 +5,12 @@ vec2 fixuv(vec2 c)
 }
 vec3 Grid(vec2 uv)
 {
-    vec3 col;
-    vec2 cell=1.0- 2.0*abs(fract(uv)-0.5);
-    col=vec3(smoothstep(2.0*fwidth(uv.x),1.99*fwidth(uv.x),cell.x));
-    col+=vec3(smoothstep(2.0*fwidth(uv.y),1.99*fwidth(uv.y),cell.y));
-    col.bg*=1.0-smoothstep(fwidth(uv.y),0.99*fwidth(uv.y),abs(uv.y));
-    col.rb*=1.0-smoothstep(fwidth(uv.x),0.99*fwidth(uv.x),abs(uv.x));
-    return col;
+    vec3 color=vec3(0.4);
+    vec2 grid=floor(mod(uv,2.));
+    if(grid.x==grid.y) color=vec3(0.6);
+    color=mix(color,vec3(0.0),smoothstep(1.1*fwidth(uv.x),fwidth(uv.x),abs(uv.x)));
+    color=mix(color,vec3(0.0),smoothstep(1.1*fwidth(uv.y),fwidth(uv.y),abs(uv.y)));
+    return color;
 }
 
 
@@ -51,9 +50,9 @@ float drawfunc(in vec2 uv)
 void mainImage(out vec4 fragColor,in vec2 fragCoord)
 {
     vec2 uv=fixuv(fragCoord);
-    // vec3 col=Grid(uv);
+    vec3 col=Grid(uv);
     // vec3 color=mix(col,vec3(1.0,1.0,0.0),drawfunc(uv));
     float c=length(uv);
      c=1.0-smoothstep(0.99,1.0,c);
-    fragColor=vec4(vec3(c),1.);
+    fragColor=vec4(col,1.);
 }
