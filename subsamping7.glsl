@@ -51,8 +51,8 @@ void mainImage(out vec4 fragColor,in vec2 fragCoord)
 {
     vec2 uv=fixuv(fragCoord);
     vec3 col=Grid(uv);
-    // vec3 color=mix(col,vec3(1.0,1.0,0.0),drawfunc(uv));
+    vec3 color=mix(col,vec3(1.0,1.0,0.0),drawfunc(uv));
     float c=length(uv);
      c=1.0-smoothstep(0.99,1.0,c);
-    fragColor=vec4(col,1.);
+    fragColor=vec4(color,1.);
 }
