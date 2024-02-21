@@ -11,7 +11,7 @@ vec2 fixuv(vec2 c)
 
 float sdfSphere(in vec3 p)
 {
-    return length(p-vec3(0.0,0.0,2.0))-1.5;
+    return length(p)-1.5;
 }
 
 float raymarch(in vec3 ro ,in vec3 rd)
@@ -43,18 +43,36 @@ vec3 calcNormal(in vec3 p)
                       k.yxy*sdfSphere( p + k.yxy*h ) + 
                       k.xxx*sdfSphere( p + k.xxx*h ) );
 }
+mat3 setCamera(vec3 ta,vec3 ro,float cr)
+{
+    vec3 z=normalize(ta-ro);
+    vec3 cp=vec3(sin(cr),cos(cr),0.0);
+    vec3 x=normalize(cross(z,cp));
+    vec3 y=cross(x,z);
+    return mat3(x,y,z);
+}
 vec3 render(vec2 uv)
 {
     vec3 color=vec3(0.0);
-    vec3 ro =vec3(0.,0.,-1.5);
-    vec3 rd=normalize(vec3(uv,0.0)-ro);
+    vec3 ro =vec3(2.*cos(iTime),1.0,2.*sin(iTime));
+    if(iMouse.z>0.01)
+    {
+        float theta=iMouse.x/iResolution.x*2.0*PI;
+        ro=vec3(2.0*cos(theta),1.0,2.0*sin(theta));
+    }
+    vec3 ta=vec3(0.0);
+    mat3 cam=setCamera(ta,ro,0.);
+    //rd相机向每个像素发射的射线法向
+    // vec3 rd=normalize(vec3(uv,0.0)-ro);
+    vec3 rd=normalize(cam*vec3(uv,1.0));
     float t=raymarch(ro,rd);
     // color=vec3(smoothstep(TMAX,TMIN,t));
     if(t<TMAX)
     {
         vec3 p=ro+t*rd;
         vec3 n=calcNormal(p);
-        vec3 light=vec3(cos(iTime),2.0,sin(iTime));
+        // vec3 light=vec3(cos(iTime),2.0,sin(iTime));
+        vec3 light=vec3(2.0,1.0,0.0);
         float diff=clamp(dot(normalize(light-p),n),0.,1.);
         float amb=0.5;
         color=amb*vec3(0.25,0.23,0.23)+diff*vec3(1.0);
