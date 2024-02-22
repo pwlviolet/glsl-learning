@@ -24,7 +24,8 @@ float raymarch(in vec3 ro ,in vec3 rd)
     for(int i=0;i<RAYMARCH_STEP&&t<TMAX;i++)
     {
         vec3 ray=ro+t*rd;
-        float d=sdfSphere(ray);
+        // float d=sdfSphere(ray);
+        float d=sdBox(ray,vec3(0.5));
         if(d<PRECISION)
         {
             break;
@@ -42,10 +43,14 @@ vec3 calcNormal(in vec3 p)
 {
     const float h=0.0001;
     const vec2 k=vec2(1,-1);
-    return normalize( k.xyy*sdfSphere( p + k.xyy*h ) + 
-                      k.yyx*sdfSphere( p + k.yyx*h ) + 
-                      k.yxy*sdfSphere( p + k.yxy*h ) + 
-                      k.xxx*sdfSphere( p + k.xxx*h ) );
+    // return normalize( k.xyy*sdfSphere( p + k.xyy*h ) + 
+    //                   k.yyx*sdfSphere( p + k.yyx*h ) + 
+    //                   k.yxy*sdfSphere( p + k.yxy*h ) + 
+    //                   k.xxx*sdfSphere( p + k.xxx*h ) );
+        return normalize( k.xyy*sdBox( p + k.xyy*h ,vec3(0.5)) + 
+                      k.yyx*sdBox( p + k.yyx*h ,vec3(0.5)) + 
+                      k.yxy*sdBox( p + k.yxy*h ,vec3(0.5)) + 
+                      k.xxx*sdBox( p + k.xxx*h,vec3(0.5) ) );             
 }
 mat3 setCamera(vec3 ta,vec3 ro,float cr)
 {
