@@ -6,7 +6,7 @@
 #define AA 3
 // 相机视点位
 #define TIME iTime*.5
-#define CAMERA_POS mat3(cos(TIME),0,-sin(TIME),0,1,0,sin(TIME),0,cos(TIME))*vec3(5,2,0)
+#define CAMERA_POS mat3(cos(TIME),0,-sin(TIME),0,1,0,sin(TIME),0,cos(TIME))*vec3(5,4,0)
 // 相机目标点
 #define CAMERA_TARGET vec3(0,0,0)
 // 上方向
