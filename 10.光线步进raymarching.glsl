@@ -73,7 +73,7 @@ void mainImage(out vec4 fragColor,in vec2 fragCoord)
     {
         for(int n=0;n<AA;n++)
         {
-            vec2 offset=2.0*(vec2(float(m),float(n)/float(AA)-0.5));
+            vec2 offset=2.0*(vec2(float(m),float(n))/float(AA)-0.5);
             vec2 uv=fixuv(fragCoord+offset);
             color+=render(uv);
         }
