@@ -6,7 +6,7 @@
 #define AA 3
 // 相机视点位
 #define TIME iTime*.5
-#define CAMERA_POS mat3(cos(TIME),0,-sin(TIME),0,1,0,sin(TIME),0,cos(TIME))*vec3(5,4,0)
+#define CAMERA_POS mat3(cos(TIME),0,-sin(TIME),0,1,0,sin(TIME),0,cos(TIME))*vec3(5,3,0)
 // 相机目标点
 #define CAMERA_TARGET vec3(0,0,0)
 // 上方向
@@ -155,7 +155,20 @@ vec3 addlight(vec3 p,vec3 kd)
     vec3 amb=kd * (0.4 + max(dot(-lightdir, n), 0.) * 0.3);
     return amb+diffuse;
 }
-vec3 render(vec2 uv)
+//三角形
+vec2 tri( in vec2 x )
+{
+    vec2 h = fract(x*.5)-.5;
+    return 1.-2.*abs(h);
+}
+//模糊
+float checkersGrad( in vec2 uv, in vec2 ddx, in vec2 ddy )
+{
+    vec2 w = max(abs(ddx), abs(ddy)) + 0.01;    // filter kernel
+    vec2 i = (tri(uv+0.5*w)-tri(uv-0.5*w))/w;   // analytical integral (box filter)
+    return 0.5 - 0.5*i.x*i.y;                   // xor pattern
+}
+vec3 render(vec2 uv,vec2 px,vec2 py)
 {
     vec3 color=vec3(0.);
     // vec3 ro =vec3(4.*cos(iTime),1.0,4.*sin(iTime));
@@ -181,13 +194,13 @@ vec3 render(vec2 uv)
             vec2 grid=floor(p.xz);
             kd=vec3(0.1)+mod(grid.x+grid.y,2.);
             //将px、py变换至相机世界
-            // vec3 rdx = normalize(rotateMatrix * vec3(px, SCREEN_Z));
-            // vec3 rdy = normalize(rotateMatrix * vec3(py, SCREEN_Z));
-            // // 将栅格图像上一个像素的偏移向量转换为棋盘格水平空间内的向量
-            // vec3 ddx = rd / rd.y - rdx / rdx.y;
-            // vec3 ddy = rd / rd.y - rdy / rdy.y;
-            // float check = CheckersGrad(pos.xz, ddx.xz, ddy.xz);
-            // kd = vec3(check * 0.8 + 0.2);
+            vec3 rdx = normalize(RotateMatrix()*vec3(px,1));
+            vec3 rdy = normalize(RotateMatrix()*vec3(py,1));
+            // 将栅格图像上一个像素的偏移向量转换为棋盘格水平空间内的向量
+            vec3 ddx = rd / rd.y - rdx / rdx.y;
+            vec3 ddy = rd / rd.y - rdy / rdy.y;
+            float check = checkersGrad(p.xz,ddx.xz,ddy.xz);
+            kd = vec3(check + 0.23);
         }else if(minObj==1){
             kd=SPHERE_KD;
         }else if(minObj==2){
@@ -200,7 +213,7 @@ vec3 render(vec2 uv)
     }
     return color;
 }
-vec3 Raymarch_AA(vec2 fragcoord)
+vec3 Raymarch_AA(vec2 fragcoord,vec2 px,vec2 py)
 {
     vec3 color=vec3(0.);
     float aa2=float(AA/2);
@@ -210,15 +223,18 @@ vec3 Raymarch_AA(vec2 fragcoord)
         {
             vec2 offset=(vec2(float(m),float(n))/float(AA)-aa2);
             vec2 uv=fixuv(fragcoord+offset);
-            color+=render(uv);
+            color+=render(uv, px, py);
         }
     }
     return color/float(AA*AA);
 }
 void mainImage(out vec4 fragColor,in vec2 fragCoord)
 {
-    
-    vec3 color=Raymarch_AA(fragCoord);
+    //图像往右边移动一个像素
+    vec2 px=fixuv(fragCoord+vec2(1.0,0.));
+    //往上移动
+    vec2 py=fixuv(fragCoord+vec2(0.,1.));
+    vec3 color=Raymarch_AA(fragCoord,px,py);
     fragColor=vec4(color,1.);
     
 }
