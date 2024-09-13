@@ -6,7 +6,7 @@ Open https://www.shadertoy.com/new ,and then paste the code for this repository.
 
 ## Screenshot
 
-   ![1726217364834](image/README/1726217364834.png)
+   ![1726217364834](image/README/1726217364834.png "1")
 
     ![1726217382671](image/README/1726217382671.png)
 
